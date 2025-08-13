@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Stylistic Analyzer & Emulation</title>
+    <!-- Use Tailwind CSS for a clean, modern, and responsive design -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6; /* Light gray background */
+        }
+        .container-wrapper {
+            background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+        .app-container {
+            max-width: 800px;
+            width: 100%;
+            background-color: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+        }
+        .button-primary {
+            background: linear-gradient(90deg, #60a5fa, #3b82f6);
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+        .button-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+        .button-secondary {
+            background-color: #e5e7eb;
+            color: #4b5563;
+            transition: all 0.3s ease-in-out;
+        }
+        .button-secondary:hover {
+            background-color: #d1d5db;
+        }
+        .loading-spinner {
+            border-top-color: #3b82f6;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .result-box {
+            background-color: #f9fafb;
+            border-left: 4px solid #3b82f6;
+            padding: 1.5rem;
+        }
+        .emulation-output-box {
+            background-color: #f9fafb;
+            border-left: 4px solid #10b981;
+            padding: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container-wrapper">
+    <div class="app-container">
+        <h1 class="text-4xl font-bold text-gray-800 text-center mb-6">Advanced Stylistic Analyzer & Emulation</h1>
+        <p class="text-lg text-gray-600 text-center mb-8">
+            First, analyze a text sample to create a "stylistic fingerprint." Then, use that fingerprint to generate a new piece of writing.
+        </p>
+
+        <!-- Step 1: Text Analysis -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Step 1: Analyze a Text Sample</h2>
+            <div class="mb-4">
+                <textarea
+                    id="textInput"
+                    class="w-full h-48 p-4 text-gray-700 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300"
+                    placeholder="Type or paste the text you want to analyze here..."
+                ></textarea>
+            </div>
+            <div class="flex justify-center mb-4">
+                <button
+                    id="analyzeButton"
+                    class="button-primary text-white font-bold py-3 px-8 rounded-full focus:outline-none focus:ring-4 focus:ring-blue-300 transition-all duration-300 transform active:scale-95"
+                >
+                    Analyze Text
+                </button>
+            </div>
+            <div id="loading-analysis" class="flex justify-center items-center py-4 hidden">
+                <div class="loading-spinner w-8 h-8 rounded-full border-4 border-gray-200 border-t-4"></div>
+                <span class="ml-4 text-lg text-gray-500">Analyzing style...</span>
+            </div>
+            <div id="error-message-analysis" class="hidden mt-4 text-center text-red-500 font-medium"></div>
+            <div id="analysis-result" class="hidden">
+                <h3 class="text-xl font-bold text-gray-800 mt-6 mb-4">Analysis Report: Stylistic Fingerprint</h3>
+                <div id="result-box-content" class="result-box rounded-xl">
+                    <!-- Analysis results will be inserted here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Style Emulation (Hidden until analysis is complete) -->
+        <div id="emulation-section" class="hidden border-t-2 border-gray-200 pt-8 mt-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Step 2: Emulate the Style</h2>
+            <div class="mb-4">
+                <textarea
+                    id="topicInput"
+                    class="w-full h-24 p-4 text-gray-700 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all duration-300"
+                    placeholder="Enter a new topic for the generated text (e.g., 'Social Media Audit for a new company')."
+                ></textarea>
+            </div>
+            <div class="flex justify-center mb-4">
+                <button
+                    id="emulateButton"
+                    class="button-secondary text-white font-bold py-3 px-8 rounded-full focus:outline-none focus:ring-4 focus:ring-gray-300 transition-all duration-300 transform active:scale-95"
+                >
+                    Emulate Style
+                </button>
+            </div>
+            <div id="loading-emulation" class="flex justify-center items-center py-4 hidden">
+                <div class="loading-spinner w-8 h-8 rounded-full border-4 border-gray-200 border-t-4"></div>
+                <span class="ml-4 text-lg text-gray-500">Generating text...</span>
+            </div>
+            <div id="error-message-emulation" class="hidden mt-4 text-center text-red-500 font-medium"></div>
+            <div id="emulation-result" class="hidden">
+                <h3 class="text-xl font-bold text-gray-800 mt-6 mb-4">Style Emulation: Generated Text</h3>
+                <div id="emulation-output" class="emulation-output-box rounded-xl">
+                    <!-- Emulated text will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const textInput = document.getElementById('textInput');
+        const analyzeButton = document.getElementById('analyzeButton');
+        const loadingAnalysis = document.getElementById('loading-analysis');
+        const analysisResultDiv = document.getElementById('analysis-result');
+        const resultBoxContent = document.getElementById('result-box-content');
+        const errorMessageAnalysis = document.getElementById('error-message-analysis');
+
+        const emulationSection = document.getElementById('emulation-section');
+        const topicInput = document.getElementById('topicInput');
+        const emulateButton = document.getElementById('emulateButton');
+        const loadingEmulation = document.getElementById('loading-emulation');
+        const emulationResultDiv = document.getElementById('emulation-result');
+        const emulationOutput = document.getElementById('emulation-output');
+        const errorMessageEmulation = document.getElementById('error-message-emulation');
+
+        let styleFingerprint = null; // Store the analysis result here
+
+        analyzeButton.addEventListener('click', async () => {
+            const promptText = textInput.value.trim();
+            if (promptText === '') {
+                errorMessageAnalysis.textContent = "Please enter some text to analyze.";
+                errorMessageAnalysis.classList.remove('hidden');
+                analysisResultDiv.classList.add('hidden');
+                return;
+            }
+
+            // Show loading spinner and hide previous results/errors
+            loadingAnalysis.classList.remove('hidden');
+            analysisResultDiv.classList.add('hidden');
+            emulationSection.classList.add('hidden');
+            errorMessageAnalysis.classList.add('hidden');
+            analyzeButton.disabled = true;
+
+            let retryCount = 0;
+            const maxRetries = 5;
+            let success = false;
+
+            while(retryCount < maxRetries && !success) {
+                try {
+                    // The detailed prompt for the AI, asking for a structured JSON response
+                    const userPrompt = `
+                        Act as a computational stylometrist and linguistic analyst. Your mission is to analyze the provided text to identify recurring stylistic patterns and construct a comprehensive "stylistic fingerprint."
+
+                        Analyze the provided text and produce a JSON report with the following structure:
+                        {
+                            "lexicalFingerprint": {
+                                "vocabularyAndTone": "...",
+                                "trademarkPhrases": ["..."],
+                                "functionWords": {
+                                    "conjunctions": "...",
+                                    "pronouns": "...",
+                                    "prepositions": "..."
+                                },
+                                "ngramPatterns": ["..."]
+                            },
+                            "syntacticStructuralDNA": {
+                                "sentenceRhythmAndLength": "...",
+                                "punctuationSignature": "...",
+                                "paragraphingStyle": "...",
+                                "voiceAndFlow": "..."
+                            },
+                            "rhetoricalStance": {
+                                "rhetoricalDevices": "...",
+                                "authorialPersona": "..."
+                            }
+                        }
+
+                        The text to analyze is:
+                        "${promptText}"
+                    `;
+
+                    // The payload for the API request with a structured response schema
+                    const payload = {
+                        contents: [{ parts: [{ text: userPrompt }] }],
+                        generationConfig: {
+                            responseMimeType: "application/json",
+                            responseSchema: {
+                                type: "OBJECT",
+                                properties: {
+                                    "lexicalFingerprint": {
+                                        type: "OBJECT",
+                                        properties: {
+                                            "vocabularyAndTone": { "type": "STRING" },
+                                            "trademarkPhrases": { "type": "ARRAY", "items": { "type": "STRING" } },
+                                            "functionWords": {
+                                                type: "OBJECT",
+                                                properties: {
+                                                    "conjunctions": { "type": "STRING" },
+                                                    "pronouns": { "type": "STRING" },
+                                                    "prepositions": { "type": "STRING" }
+                                                }
+                                            },
+                                            "ngramPatterns": { "type": "ARRAY", "items": { "type": "STRING" } }
+                                        }
+                                    },
+                                    "syntacticStructuralDNA": {
+                                        type: "OBJECT",
+                                        properties: {
+                                            "sentenceRhythmAndLength": { "type": "STRING" },
+                                            "punctuationSignature": { "type": "STRING" },
+                                            "paragraphingStyle": { "type": "STRING" },
+                                            "voiceAndFlow": { "type": "STRING" }
+                                        }
+                                    },
+                                    "rhetoricalStance": {
+                                        type: "OBJECT",
+                                        properties: {
+                                            "rhetoricalDevices": { "type": "STRING" },
+                                            "authorialPersona": { "type": "STRING" }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    };
+
+                    const apiKey = ""; // Canvas will provide this at runtime
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`API call failed with status: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        const jsonResponse = result.candidates[0].content.parts[0].text;
+                        styleFingerprint = JSON.parse(jsonResponse); // Store the fingerprint
+                        displayAnalysisResults(styleFingerprint);
+                        emulationSection.classList.remove('hidden'); // Show emulation section
+                        success = true;
+                    } else {
+                         throw new Error("Invalid response from API.");
+                    }
+                } catch (error) {
+                    console.error('Error during API call:', error);
+                    retryCount++;
+                    if (retryCount < maxRetries) {
+                        const delay = Math.pow(2, retryCount) * 1000; // Exponential backoff
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                    } else {
+                        errorMessageAnalysis.textContent = "Failed to analyze text after multiple retries. Please try again later.";
+                        errorMessageAnalysis.classList.remove('hidden');
+                    }
+                }
+            }
+
+            // Hide loading spinner and re-enable button
+            loadingAnalysis.classList.add('hidden');
+            analyzeButton.disabled = false;
+        });
+
+        emulateButton.addEventListener('click', async () => {
+            const topic = topicInput.value.trim();
+            if (!styleFingerprint) {
+                errorMessageEmulation.textContent = "Please perform a style analysis first.";
+                errorMessageEmulation.classList.remove('hidden');
+                emulationResultDiv.classList.add('hidden');
+                return;
+            }
+            if (topic === '') {
+                errorMessageEmulation.textContent = "Please enter a topic for the emulation.";
+                errorMessageEmulation.classList.remove('hidden');
+                emulationResultDiv.classList.add('hidden');
+                return;
+            }
+
+            // Show loading spinner and hide previous results/errors
+            loadingEmulation.classList.remove('hidden');
+            emulationResultDiv.classList.add('hidden');
+            errorMessageEmulation.classList.add('hidden');
+            emulateButton.disabled = true;
+
+            let retryCount = 0;
+            const maxRetries = 5;
+            let success = false;
+
+            while(retryCount < maxRetries && !success) {
+                try {
+                    // Prompt for emulation, using the stored stylistic fingerprint
+                    const emulationPrompt = `
+                        Using the following stylistic fingerprint, write a new 150-250 word research abstract on the topic: "${topic}".
+                        The generated text must:
+                        - Match the author’s tone, rhythm, and phrasing.
+                        - Reflect audience awareness (senior technologists).
+                        - Avoid direct reuse of phrases from the original sample.
+
+                        Here is the stylistic fingerprint:
+                        ${JSON.stringify(styleFingerprint, null, 2)}
+                    `;
+
+                    const payload = { contents: [{ parts: [{ text: emulationPrompt }] }] };
+                    const apiKey = "";
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`API call failed with status: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+                    
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        const emulatedText = result.candidates[0].content.parts[0].text;
+                        displayEmulationResults(emulatedText);
+                        success = true;
+                    } else {
+                         throw new Error("Invalid response from API.");
+                    }
+                } catch (error) {
+                    console.error('Error during API call:', error);
+                    retryCount++;
+                    if (retryCount < maxRetries) {
+                        const delay = Math.pow(2, retryCount) * 1000; // Exponential backoff
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                    } else {
+                        errorMessageEmulation.textContent = "Failed to generate text after multiple retries. Please try again later.";
+                        errorMessageEmulation.classList.remove('hidden');
+                    }
+                }
+            }
+            
+            // Hide loading spinner and re-enable button
+            loadingEmulation.classList.add('hidden');
+            emulateButton.disabled = false;
+        });
+
+        // Function to display the structured analysis results
+        function displayAnalysisResults(data) {
+            resultBoxContent.innerHTML = `
+                <div class="mb-6">
+                    <h4 class="font-bold text-lg text-gray-700 mb-2">1. Lexical Fingerprint (Word Choice & Phrasing)</h4>
+                    <div class="ml-4">
+                        <div class="mb-2">
+                            <h5 class="font-semibold text-gray-700">Vocabulary & Tone:</h5>
+                            <p class="text-gray-600">${data.lexicalFingerprint.vocabularyAndTone}</p>
+                        </div>
+                        <div class="mb-2">
+                            <h5 class="font-semibold text-gray-700">Trademark Phrases:</h5>
+                            <ul class="list-disc list-inside text-gray-600">
+                                ${data.lexicalFingerprint.trademarkPhrases.map(phrase => `<li>${phrase}</li>`).join('')}
+                            </ul>
+                        </div>
+                        <div class="mb-2">
+                            <h5 class="font-semibold text-gray-700">Function Words:</h5>
+                            <ul class="list-disc list-inside text-gray-600">
+                                <li><strong>Conjunctions:</strong> ${data.lexicalFingerprint.functionWords.conjunctions}</li>
+                                <li><strong>Pronouns:</strong> ${data.lexicalFingerprint.functionWords.pronouns}</li>
+                                <li><strong>Prepositions:</strong> ${data.lexicalFingerprint.functionWords.prepositions}</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h5 class="font-semibold text-gray-700">N-gram Patterns:</h5>
+                            <ul class="list-disc list-inside text-gray-600">
+                                ${data.lexicalFingerprint.ngramPatterns.map(pattern => `<li>${pattern}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <h4 class="font-bold text-lg text-gray-700 mb-2">2. Syntactic & Structural DNA (Sentence & Paragraph Architecture)</h4>
+                    <div class="ml-4">
+                        <div class="mb-2">
+                            <h5 class="font-semibold text-gray-700">Sentence Rhythm & Length:</h5>
+                            <p class="text-gray-600">${data.syntacticStructuralDNA.sentenceRhythmAndLength}</p>
+                        </div>
+                        <div class="mb-2">
+                            <h5 class="font-semibold text-gray-700">Punctuation Signature:</h5>
+                            <p class="text-gray-600">${data.syntacticStructuralDNA.punctuationSignature}</p>
+                        </div>
+                        <div class="mb-2">
+                            <h5 class="font-semibold text-gray-700">Paragraphing Style:</h5>
+                            <p class="text-gray-600">${data.syntacticStructuralDNA.paragraphingStyle}</p>
+                        </div>
+                        <div>
+                            <h5 class="font-semibold text-gray-700">Voice & Flow:</h5>
+                            <p class="text-gray-600">${data.syntacticStructuralDNA.voiceAndFlow}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="font-bold text-lg text-gray-700 mb-2">3. Rhetorical Stance & Idiosyncrasies (The Human Layer)</h4>
+                    <div class="ml-4">
+                        <div class="mb-2">
+                            <h5 class="font-semibold text-gray-700">Rhetorical Devices:</h5>
+                            <p class="text-gray-600">${data.rhetoricalStance.rhetoricalDevices}</p>
+                        </div>
+                        <div>
+                            <h5 class="font-semibold text-gray-700">Authorial Persona:</h5>
+                            <p class="text-gray-600">${data.rhetoricalStance.authorialPersona}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            analysisResultDiv.classList.remove('hidden');
+        }
+
+        // Function to display the emulation results
+        function displayEmulationResults(text) {
+            emulationOutput.innerHTML = `<p class="text-gray-700 whitespace-pre-wrap">${text}</p>`;
+            emulationResultDiv.classList.remove('hidden');
+        }
+    });
+</script>
+
+</body>
+</html>
